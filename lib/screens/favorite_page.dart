@@ -1,36 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../state/my_app_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/generator_cubit.dart';
 
-class FavoritePage extends StatefulWidget {
+class FavoritePage extends StatelessWidget {
   const FavoritePage({super.key});
 
   @override
-  State<FavoritePage> createState() => _FavoritePageState();
-}
-
-class _FavoritePageState extends State<FavoritePage> {
-  @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    if (appState.favorites.isEmpty) {
-      return const Center(
-        child: Text("Favorite is empty"),
-      );
-    } else {
-      return ListView.builder(
-          itemCount: appState.favorites.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-                title: Text(appState.favorites[index].asLowerCase),
+    return BlocBuilder<GeneratorCubit, GeneratorState>(
+      builder: (context, state) {
+        if (state.favorites.isEmpty) {
+          return const Center(
+            child: Text("Favorite is empty"),
+          );
+        } else {
+          return ListView.builder(
+            itemCount: state.favorites.length,
+            itemBuilder: (context, index) {
+              final wordPair = state.favorites[index];
+              return ListTile(
+                title: Text(wordPair.asLowerCase),
                 leading: IconButton(
                   icon: const Icon(Icons.favorite),
                   onPressed: () {
-                    appState.favorites.remove(appState.favorites[index]);
-                    setState(() {});
+                    context.read<GeneratorCubit>().onToggleFavorite(wordPair);
                   },
-                ));
-          });
-    }
+                ),
+              );
+            },
+          );
+        }
+      },
+    );
   }
 }
